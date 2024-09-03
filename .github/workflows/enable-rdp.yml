@@ -1,0 +1,46 @@
+name: Enable RDP on Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  enable-rdp:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP through Registry
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\TermService" /v Start /t REG_DWORD /d 2 /f
+          Set-Service -Name "TermService" -StartupType Automatic
+          Start-Service -Name "TermService"
+
+      - name: Open RDP Port in Firewall
+        run: |
+          netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+
+      - name: Set Administrator Password
+        run: |
+          net user Administrator ConnectToMyRDP
+
+      - name: Get Public IP Address
+        id: get_public_ip
+        run: |
+          $ip = Invoke-RestMethod -Uri http://ipinfo.io/ip
+          echo "::set-output name=PUBLIC_IP::$ip"
+
+      - name: Display RDP Connection Details
+        run: |
+          echo "=============================================="
+          echo "RDP is now enabled."
+          echo "You can connect using the following credentials:"
+          echo "IP Address: ${{ steps.get_public_ip.outputs.PUBLIC_IP }}"
+          echo "Username: Administrator"
+          echo "Password: ConnectToMyRDP"
+          echo "=============================================="
+
+      - name: Keep Action Running for 6 Hours
+        run: |
+          $end = (Get-Date).AddHours(6)
+          while ((Get-Date) -lt $end) {
+            ping -n 10 google.com
+          }
