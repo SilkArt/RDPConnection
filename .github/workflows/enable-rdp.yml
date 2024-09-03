@@ -48,9 +48,13 @@ jobs:
       - name: Get Ngrok Public URL
         id: get_ngrok_url
         run: |
-          $ngrokApiUrl = "http://127.0.0.1:4040/api/tunnels"
-          $response = Invoke-RestMethod -Uri $ngrokApiUrl
-          $publicUrl = $response.tunnels[0].public_url
+          $ngrokApiUrl = "https://api.ngrok.com/tunnels"
+          $headers = @{
+            "Authorization" = "Bearer $env:NGROK_API_KEY"
+            "Ngrok-Version" = "2"
+          }
+          $response = Invoke-RestMethod -Uri $ngrokApiUrl -Headers $headers
+          $publicUrl = ($response.tunnels | Where-Object { $_.proto -eq "tcp" }).public_url
           echo "::set-output name=NGROK_URL::$publicUrl"
 
       - name: Display RDP Connection Details
