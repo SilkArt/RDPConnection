@@ -22,13 +22,20 @@ jobs:
           Set-Service -Name "TermService" -StartupType Automatic
           Start-Service -Name "TermService"
 
+      - name: Verify RDP Service Status
+        run: |
+          Get-Service -Name TermService | Select-Object Status
+
       - name: Open RDP Port in Firewall
         run: |
           netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
 
+      - name: Verify Firewall Rules for RDP
+        run: |
+          netsh advfirewall firewall show rule name="remote desktop"
+
       - name: Set Password for Current User
         run: |
-          # Set a more complex password to meet the Windows password policy
           net user ${{ steps.get_current_user.outputs.USERNAME }} P@ssw0rd123!
 
       - name: Get Public IP Address
