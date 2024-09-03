@@ -45,6 +45,27 @@ jobs:
           Start-Process -FilePath "$env:GITHUB_WORKSPACE\ngrok.exe" -ArgumentList "tcp 3389" -NoNewWindow -PassThru
           Start-Sleep -Seconds 10
 
+      - name: Get Ngrok Public URL
+        id: get_ngrok_url
+        run: |
+          $ngrokApiUrl = "https://api.ngrok.com/tunnels"
+          $headers = @{
+            "Authorization" = "Bearer $env:NGROK_API_KEY"
+          }
+          $response = Invoke-RestMethod -Uri $ngrokApiUrl -Headers $headers
+          $publicUrl = ($response.tunnels | Where-Object { $_.proto -eq "tcp" }).public_url
+          echo "::set-output name=NGROK_URL::$publicUrl"
+
+      - name: Display RDP Connection Details
+        run: |
+          echo "=============================================="
+          echo "RDP is now enabled via Ngrok."
+          echo "You can connect using the following credentials:"
+          echo "Ngrok URL: ${{ steps.get_ngrok_url.outputs.NGROK_URL }}"
+          echo "Username: ${{ steps.get_current_user.outputs.USERNAME }}"
+          echo "Password: P@ssw0rd123!"
+          echo "=============================================="
+
       - name: Keep Action Running for 6 Hours
         run: |
           $end = (Get-Date).AddHours(6)
