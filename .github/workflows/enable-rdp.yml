@@ -7,6 +7,13 @@ jobs:
   enable-rdp:
     runs-on: windows-latest
     steps:
+      - name: Get Current Logged-in User
+        id: get_current_user
+        run: |
+          $user = whoami
+          echo "Current logged-in user is $user"
+          echo "::set-output name=USERNAME::$user"
+
       - name: Enable RDP through Registry
         run: |
           reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
@@ -18,9 +25,9 @@ jobs:
         run: |
           netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
 
-      - name: Set Administrator Password
+      - name: Set Password for Current User
         run: |
-          net user Administrator ConnectToMyRDP
+          net user ${{ steps.get_current_user.outputs.USERNAME }} ConnectToMyRDP
 
       - name: Get Public IP Address
         id: get_public_ip
@@ -34,7 +41,7 @@ jobs:
           echo "RDP is now enabled."
           echo "You can connect using the following credentials:"
           echo "IP Address: ${{ steps.get_public_ip.outputs.PUBLIC_IP }}"
-          echo "Username: Administrator"
+          echo "Username: ${{ steps.get_current_user.outputs.USERNAME }}"
           echo "Password: ConnectToMyRDP"
           echo "=============================================="
 
