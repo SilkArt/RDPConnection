@@ -10,7 +10,8 @@ jobs:
       - name: Get Current Logged-in User
         id: get_current_user
         run: |
-          $user = whoami
+          # Get the currently logged-in username
+          $user = whoami | ForEach-Object { $_.Split("\")[1] }
           echo "Current logged-in user is $user"
           echo "::set-output name=USERNAME::$user"
 
