@@ -37,12 +37,12 @@ jobs:
 
       - name: Install Ngrok Authtoken
         run: |
-          .\ngrok.exe authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+          .\ngrok.exe config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
 
       - name: Start Ngrok Tunnel for RDP
         id: start_ngrok
         run: |
-          Start-Process -FilePath "$env:GITHUB_WORKSPACE\ngrok.exe" -ArgumentList "tcp 3389 --log=stdout" -NoNewWindow -PassThru
+          Start-Process -FilePath "$env:GITHUB_WORKSPACE\ngrok.exe" -ArgumentList "tcp 3389" -NoNewWindow -PassThru
           Start-Sleep -Seconds 10
 
       - name: Get Ngrok Public URL
