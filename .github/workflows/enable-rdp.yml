@@ -22,17 +22,13 @@ jobs:
           Set-Service -Name "TermService" -StartupType Automatic
           Start-Service -Name "TermService"
 
-      - name: Verify RDP Service Status
+      - name: Open RDP Port 3389 in Firewall
         run: |
-          Get-Service -Name TermService | Select-Object Status
+          netsh advfirewall firewall add rule name="Open RDP Port 3389" protocol=TCP dir=in localport=3389 action=allow
 
-      - name: Open RDP Port in Firewall
+      - name: Verify Firewall Rule for Port 3389
         run: |
-          netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
-
-      - name: Verify Firewall Rules for RDP
-        run: |
-          netsh advfirewall firewall show rule name="remote desktop"
+          netsh advfirewall firewall show rule name="Open RDP Port 3389"
 
       - name: Set Password for Current User
         run: |
