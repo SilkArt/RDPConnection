@@ -28,7 +28,8 @@ jobs:
 
       - name: Set Password for Current User
         run: |
-          net user ${{ steps.get_current_user.outputs.USERNAME }} ConnectToMyRDP
+          # Set a more complex password to meet the Windows password policy
+          net user ${{ steps.get_current_user.outputs.USERNAME }} P@ssw0rd123!
 
       - name: Get Public IP Address
         id: get_public_ip
@@ -43,7 +44,7 @@ jobs:
           echo "You can connect using the following credentials:"
           echo "IP Address: ${{ steps.get_public_ip.outputs.PUBLIC_IP }}"
           echo "Username: ${{ steps.get_current_user.outputs.USERNAME }}"
-          echo "Password: ConnectToMyRDP"
+          echo "Password: P@ssw0rd123!"
           echo "=============================================="
 
       - name: Keep Action Running for 6 Hours
